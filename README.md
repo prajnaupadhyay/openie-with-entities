@@ -1,8 +1,23 @@
 # Entity specific open information extraction
 
-This repository builds on top of the OpenIE6 repository. It tags entities in the input file and uses them to enforce additioanl constraints for better quality extractions.
+This repository contains code for the EACL 2023 Findings paper "Open Information Extraction with Entity Focused Constraints".
 
-## Warm up training
+## Installation
+```
+conda create -n openie_entities python=3.9
+conda activate openie_entities
+pip install -r requirements.txt
+python -m nltk.downloader stopwords
+python -m nltk.downloader punkt
+```
+
+## Download resources
+
+## Running the model
+
+## Retraining the model
+
+### Warm up training
 
 On the cluster, this file: `/gpfswork/rech/mpe/ucy98jw/pupadhya/openie6/openie6/openie_train.slurm`  is the slurm file to train openie. We have to do the warmup training first, and then the constrained training. Whether to train on the small, cleaned or original data has to be specified in the file run.py: The respective files for small, cleaned and original data are:
 
@@ -18,7 +33,7 @@ The command for warm-up is:
 where
 `--save models_test/ent_exclusivity/smaller/warmup_oie_model  `is the location to save warmup model. 
 
-## Constrained training
+### Constrained training
 
 After warmpup, the following command is for constrained training:
 
