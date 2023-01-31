@@ -1,6 +1,8 @@
 # Entity specific open information extraction
 
-This repository contains code for the EACL 2023 Findings paper "Open Information Extraction with Entity Focused Constraints".
+This repository contains code for the EACL 2023 Findings paper:
+
+Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints. EACL 2023 Findings Track._
 
 ## Installation
 ```
