@@ -1,4 +1,4 @@
-# Entity specific open information extraction
+# Open Information Extraction with Entity Focused Constraints
 
 This repository contains code for the EACL 2023 Findings paper:
 
