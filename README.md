@@ -33,13 +33,13 @@ This will download the folder `openie_with_entities` with sub-folders `models` a
 #### Datasets
 There are 3 training datasets:
 
-##### CLEAN: `openie_data/train/clean`
-##### MIXED: `openie_data/train/mixed`
-##### ORIGINAL: `openie_data/train/original`
+##### CLEAN: `datasets/train/clean`
+##### MIXED: `datasets/train/mixed`
+##### ORIGINAL: `datasets/train/original`
 
 There is 1 test dataset:
 
-##### PUBMED GOLD DATA: `openie_data/gold/pubmed.tsv`
+##### PUBMED GOLD DATA: `datasets/gold/pubmed.tsv`
 
 
 
