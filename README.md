@@ -2,7 +2,7 @@
 
 This repository contains code for the EACL 2023 Findings paper:
 
-Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints. EACL 2023 Findings Track._
+Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints._
 
 ## Installation
 ```
@@ -15,13 +15,15 @@ python -m nltk.downloader punkt
 
 ## Download resources
 
-Download the model and the datasets.
+Download the model and the datasets. It requires installaing `git lfs`.
 
 ```
-wget https://huggingface.co/prajnaupadhyay/openie_with_entities/blob/main/models
-
-wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/main/openie_data
+git lfs install
+git clone https://huggingface.co/prajnaupadhyay/openie_with_entities
 ```
+
+This will download the folder `openie_with_entities` with sub-folders `models` and `datasets` under it.
+
 #### Models
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
 ##### WARM_UP: `models/warmpup.ckpt`
@@ -31,13 +33,13 @@ wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/ma
 #### Datasets
 There are 3 training datasets:
 
-##### CLEAN: `openie_data/train/clean`
-##### MIXED: `openie_data/train/mixed`
-##### ORIGINAL: `openie_data/train/original`
+##### CLEAN: `datasets/train/clean`
+##### MIXED: `datasets/train/mixed`
+##### ORIGINAL: `datasets/train/original`
 
 There is 1 test dataset:
 
-##### PUBMED GOLD DATA: `openie_data/gold/pubmed.tsv`
+##### PUBMED GOLD DATA: `datasets/gold/pubmed.tsv`
 
 
 
