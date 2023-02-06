@@ -42,7 +42,7 @@ There is 1 test dataset:
 python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model <path/to/oie/model> --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 ```
 
-The commands returns a `.oie` file, which is the output file containing the triples.
+This command returns a `.oie` file, which is the output file containing the triples.
 
 ## Retraining the model
 
