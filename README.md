@@ -21,6 +21,7 @@ Download the model and the datasets.
 wget https://huggingface.co/prajnaupadhyay/openie_with_entities/blob/main/clean_seed_777.ckpt
 
 wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/main/openie_data
+
 '''
 
 ## Running the model
