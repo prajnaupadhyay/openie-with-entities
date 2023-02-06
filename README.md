@@ -2,7 +2,7 @@
 
 This repository contains code for the EACL 2023 Findings paper:
 
-Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints. EACL 2023 Findings Track._
+Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints._
 
 ## Installation
 ```
