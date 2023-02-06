@@ -44,7 +44,7 @@ There is 1 test dataset:
 ## Running the model to get triples
 
 ```
-python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model <path/to/oie/model> --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
+python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model models/constrained/clean_seed_777.ckpt --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 ```
 
 This command returns a `.oie` file, which is the output file containing the triples.
