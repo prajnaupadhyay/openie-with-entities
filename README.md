@@ -24,6 +24,13 @@ wget https://huggingface.co/prajnaupadhyay/openie_with_entities/blob/main/models
 wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/main/openie_data
 
 ```
+#### Models
+##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
+##### WARM_UP: `models/warmpup.ckpt`
+##### CONSTRAINED: `models/constrained.ckpt`
+
+
+#### Datasets
 There are 3 training datasets:
 
 ##### CLEAN: `openie_data/train/clean`
