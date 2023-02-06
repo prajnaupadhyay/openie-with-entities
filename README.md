@@ -36,11 +36,13 @@ There is 1 test dataset:
 
 
 
-## Running the model
+## Running the model to get triples
 
 ```
 python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model <path/to/oie/model> --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 ```
+
+The `.oie` file is the output.
 
 ## Retraining the model
 
@@ -60,8 +62,7 @@ python run.py --save models/constrained_model/ --ent_extractor flair --mode resu
 
 First, we have to convert the predicted file into the format accepted by carb/OIE16 metrics. So, run the following:
 
-
-`python Carb/evaluation/prepare.py openie_output_file extracted_file `
+`python carb/evaluation/prepare.py openie_output_file extracted_file `
 
 
 where
@@ -70,6 +71,5 @@ where
 
 `extracted_file` is the file where we want to store this file in the format required by CaRB or OIE16
 
-Secondly, we have to give extracted_file as input to carb / oi16 metrics. They need a virtual environment to be created. More details are here: https://github.com/dair-iitd/CaRB. 
-The gold data is located under `CaRB/evaluation/gold/test_extra.tsv`
+Secondly, we have to give extracted_file as input to carb / wire57 metrics. They need a virtual environment to be created. More details are here: https://github.com/dair-iitd/CaRB. 
 
