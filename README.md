@@ -15,7 +15,7 @@ python -m nltk.downloader punkt
 
 ## Download resources
 
-Download the model and the datasets.
+Download the model and the datasets. It required installaing `git lfs`.
 
 ```
 git lfs install
