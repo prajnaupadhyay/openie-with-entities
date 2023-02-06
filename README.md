@@ -22,7 +22,7 @@ git lfs install
 git clone https://huggingface.co/prajnaupadhyay/openie_with_entities
 ```
 
-This will download the file `openie_with_entities` with folders `models` and `datasets` under it.
+This will download the folder `openie_with_entities` with sub-folders `models` and `datasets` under it.
 
 #### Models
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
