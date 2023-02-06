@@ -18,11 +18,9 @@ python -m nltk.downloader punkt
 Download the model and the datasets.
 
 ```
-
 wget https://huggingface.co/prajnaupadhyay/openie_with_entities/blob/main/models
 
 wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/main/openie_data
-
 ```
 #### Models
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
