@@ -17,9 +17,12 @@ python -m nltk.downloader punkt
 
 Download the model and the datasets.
 
-Model from: `https://huggingface.co/prajnaupadhyay/openie_with_entities/blob/main/models`
-Dataset from: `https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/main/openie_data`
+```
+git lfs install
+git clone https://huggingface.co/prajnaupadhyay/openie_with_entities
+```
 
+This will download the file `openie_with_entities` with folders `models` and `datasets` under it.
 
 #### Models
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
