@@ -39,7 +39,7 @@ There is 1 test dataset:
 ## Running the model
 
 ```
-python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model <path/to/oie/model> --conj_model <path/to/conj/model> --ent_extractor flair --num_extractions 5 --type labels
+python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model <path/to/oie/model> --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 
 ```
 
@@ -52,7 +52,7 @@ python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/outp
 ### Constrained training
 
 ```
-python run.py --save <path/to/save/constrained/model> --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint <path/to/warmpup/model> --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp <path/to/training/data>
+python run.py --save models/constrained_model/ --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_data/train/clean
 ```
 
 ## Predicting the triples
