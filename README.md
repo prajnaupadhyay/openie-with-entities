@@ -67,7 +67,7 @@ python run.py --save models/constrained_model/ --ent_extractor flair --mode resu
 
 ## Evaluating the scores
 
-First, we have to convert the predicted file into the format accepted by carb/OIE16 metrics. So, run the following:
+First, we have to convert the predicted file into the format accepted by carb/wire57 metrics. So, run the following:
 
 `python carb/evaluation/prepare.py openie_output_file extracted_file `
 
