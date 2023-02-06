@@ -26,13 +26,13 @@ wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/ma
 ```
 There are 3 training datasets:
 
-##### CLEAN located under `openie_data/train/clean`
-##### MIXED located under `openie_data/train/mixed`
-##### ORIGINAL located under `openie_data/train/original`
+##### CLEAN: `openie_data/train/clean`
+##### MIXED: `openie_data/train/mixed`
+##### ORIGINAL: `openie_data/train/original`
 
-There is 1 test file
+There is 1 test dataset:
 
-##### PUBMED GOLD DATA located under `openie_data/gold/pubmed.tsv`
+##### PUBMED GOLD DATA: `openie_data/gold/pubmed.tsv`
 
 
 
