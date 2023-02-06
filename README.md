@@ -25,7 +25,7 @@ wget https://huggingface.co/datasets/prajnaupadhyay/openie_with_entities/tree/ma
 #### Models
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
 ##### WARM_UP: `models/warmpup.ckpt`
-##### CONSTRAINED: `models/constrained.ckpt`
+##### CONSTRAINED: `models/clean_seed_777.ckpt`
 
 
 #### Datasets
