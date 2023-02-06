@@ -47,7 +47,9 @@ This command returns a `.oie` file, which is the output file containing the trip
 ## Retraining the model
 
 ### Warm up training
-
+```
+python run.py --save models/warm_up --mode train_test --model_str bert-base-cased --task oie --epochs 30 --gpus 1 --batch_size 24 --optimizer adamW --lr 2e-05 --iterative_layers 2
+```
  
 
 ### Constrained training
