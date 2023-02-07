@@ -65,18 +65,7 @@ python run.py --save models/warm_up --ent_extractor flair --mode train_test --mo
 python run.py --save models/constrained_model/ --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_data/train/clean
 ```
 
-## Evaluating the scores
-
-First, we have to convert the predicted file into the format accepted by carb/wire57 metrics. So, run the following:
-
-`python carb/evaluation/prepare.py openie_output_file extracted_file `
+## Evaluation
 
 
-where
-
-`openie_output_file` is the .oie file returned by OpenIE
-
-`extracted_file` is the file where we want to store this file in the format required by CaRB or OIE16
-
-Secondly, we have to give extracted_file as input to carb / wire57 metrics. They need a virtual environment to be created. More details are here: https://github.com/dair-iitd/CaRB. 
 
