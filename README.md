@@ -37,6 +37,7 @@ There are 3 training datasets:
 ##### CLEAN: `datasets/train/clean`
 ##### MIXED: `datasets/train/mixed`
 ##### ORIGINAL: `datasets/train/original`
+##### DEV AND TEST: `datasets/train/dev.txt` and `datasets/train/test.txt`
 
 There is 1 test dataset:
 
