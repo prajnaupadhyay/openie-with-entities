@@ -4,7 +4,7 @@ This repository contains code for the EACL 2023 Findings paper:
 
 Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints._
 
-## Installing Requirements
+## Install Requirements
 ```
 conda create -n openie_entities python=3.9
 conda activate openie_entities
@@ -25,6 +25,7 @@ git clone https://huggingface.co/prajnaupadhyay/openie_with_entities
 This will download the folder `openie_with_entities` with sub-folders `models` and `datasets` under it.
 
 #### Models
+
 ##### COORDINATE_BOUNDARY: `models/coordinate_boundary/conj.ckpt`
 ##### WARM_UP: `models/warmpup.ckpt`
 ##### CONSTRAINED: `models/clean_seed_777.ckpt`
@@ -40,7 +41,6 @@ There are 3 training datasets:
 There is 1 test dataset:
 
 ##### PUBMED GOLD DATA: `datasets/gold/pubmed.tsv`
-
 
 
 ## Running the model to get triples
