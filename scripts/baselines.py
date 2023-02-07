@@ -96,7 +96,6 @@ def gen_dep_paths():
 	o1 = open("results/exceptions_segmented.txt","w")
 	o3 = open("results/phrase_between.tsv","w")
 
-	#f0 = open("/media/prajna/Files1/inria/relation_extraction/myexp/spacy/pubmed/predictions_mc_comma_replaced.txt.conj")
 	f0 = open(sys.argv[1]) # read the conj file
 
 	new_example=False
@@ -148,24 +147,7 @@ def gen_dep_paths():
 			for e in entities:
 				dict_entities[conjs].append((e.text,e.start_position))
 				#print(e.text)
-	'''
-		
-	f = open("/media/prajna/Files1/inria/relation_extraction/myexp/spacy/pubmed/predictions_mc_comma_replaced.txt.conj_ent_tagged.txt")
-	for line in f:
-		line = line[:-1]
-		if(line.startswith("Sentence is: ")):
-			line = line.replace("Sentence is: ","")
-			dict_entities[line]=[]
-			sentences.append(line)
-			i=i+1
-		elif(line.startswith("Entity")):
-			splitline = line.split("', ")
-			ent = splitline[0].split(": '")[1]
-			ent_list = dict_entities[sentences[i-1]]
-			ent_list.append(ent.lower())
-			dict_entities[sentences[i-1]]=ent_list
 	
-	'''
 
 	print("read tagged entities")
 	print("size of dictionary: "+str(len(dict_entities)))
