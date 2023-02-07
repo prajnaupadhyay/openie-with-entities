@@ -55,14 +55,14 @@ This command returns a `.oie` file, which is the output file containing the trip
 
 ### Warm up training
 ```
-python run.py --save models/warm_up --ent_extractor flair --mode train_test --model_str bert-base-cased --task oie --epochs 30 --gpus 1 --batch_size 24 --optimizer adamW --lr 2e-05 --iterative_layers 2 --train_fp openie_with_entities/datasets/train/clean
+python run.py --save models/warm_up --ent_extractor flair --mode train_test --model_str bert-base-cased --task oie --epochs 30 --gpus 1 --batch_size 24 --optimizer adamW --lr 2e-05 --iterative_layers 2 --train_fp openie_with_entities/datasets/train/clean --dev_fp openie_with_entities/datasets/train/dev.txt --test_fp openie_with_entities/datasets/train/test.txt
 ```
  
 
 ### Constrained training
 
 ```
-python run.py --save models/constrained_model/ --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_data/train/clean
+python run.py --save models/constrained_model/ --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_data/train/clean --dev_fp openie_with_entities/datasets/train/dev.txt --test_fp openie_with_entities/datasets/train/test.txt
 ```
 
 ## Evaluation
