@@ -66,6 +66,6 @@ python run.py --save models/constrained_model/ --ent_extractor flair --mode resu
 ```
 
 ## Evaluation
-
-
+## Licence
+## Contact
 
