@@ -4,7 +4,7 @@ This repository contains code for the EACL 2023 Findings paper:
 
 Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction with Entity Focused Constraints._
 
-## Installation
+## Installing Requirements
 ```
 conda create -n openie_entities python=3.9
 conda activate openie_entities
@@ -13,7 +13,7 @@ python -m nltk.downloader stopwords
 python -m nltk.downloader punkt
 ```
 
-## Download resources
+## Download Models and Datasets
 
 Download the model and the datasets. It requires installaing `git lfs`.
 
