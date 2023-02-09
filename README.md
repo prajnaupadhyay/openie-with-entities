@@ -9,8 +9,6 @@ Prajna Upadhyay, Oana Balalau, Ioana Manolescu. _Open Information Extraction wit
 conda create -n openie_entities python=3.9
 conda activate openie_entities
 pip install -r requirements.txt
-python -m nltk.downloader stopwords
-python -m nltk.downloader punkt
 ```
 
 ## Download Models and Datasets
