@@ -51,7 +51,7 @@ There is 1 test dataset:
 ## Running the model to get triples
 
 ```
-python run.py --mode splitpredict --inferencing false --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model models/constrained/clean_seed_777.ckpt --conj_model models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
+python run.py --mode splitpredict --inferencing false --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model openie_with_entities/models/constrained/clean_seed_777.ckpt --conj_model openie_with_entities/models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 ```
 
 This command returns a `.oie` file, which is the output file containing the triples.
@@ -67,7 +67,7 @@ python run.py --save models/warm_up --inferencing false --ent_extractor flair --
 ### Constrained training
 
 ```
-python run.py --save models/constrained_model/ --inferencing false --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_data/train/clean --dev_fp openie_with_entities/datasets/train/dev.txt --test_fp openie_with_entities/datasets/train/test.txt
+python run.py --save openie_with_entities/models/constrained_model/ --inferencing false --ent_extractor flair --mode resume --model_str bert-base-cased --task oie --epochs num_epochs --gpus 1 --batch_size 24 --optimizer adam --lr 5e-06 --iterative_layers 2 --checkpoint openie_with_entities/models/warm_up/warmup.ckpt --constraints posm_hvc_hvr_hve_ent-arg_ent-excl_ent-rel_ent_tog --accumulate_grad_batches 2 --gradient_clip_val 1 --multi_opt --lr 2e-5 --wreg 1 --cweights 3_3_3_3_3_3_3_3 --val_check_interval 0.1 --train_fp openie_with_entities/datasets/train/clean --dev_fp openie_with_entities/datasets/train/dev.txt --test_fp openie_with_entities/datasets/train/test.txt
 ```
 
 ## Contact
