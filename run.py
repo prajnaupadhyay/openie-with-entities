@@ -52,16 +52,16 @@ def get_checkpoint_path(hparams):
 
 
 def train(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences):
-    print("entered train")
+    #print("entered train")
     model = Model(hparams, meta_data_vocab)
     logger = get_logger('train', hparams)
     trainer = Trainer(enable_progress_bar=True, num_sanity_val_steps=hparams.num_sanity_val_steps, gpus=hparams.gpus, logger=logger,
     callbacks=checkpoint_callback, min_epochs=hparams.epochs, max_epochs=hparams.epochs, gradient_clip_val=hparams.gradient_clip_val,
                       track_grad_norm=hparams.track_grad_norm)
-    print("in run.py train function, after initializing trainer")
+    #print("in run.py train function, after initializing trainer")
     # val_percent_check=0, max_steps=hparams.max_steps, progress_bar_refresh_rate=10
     trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
-    print("in run.py train function, after trainer.fit")
+    #print("in run.py train function, after trainer.fit")
     #print("best model path is: "+checkpoint_callback.best_model_path)
     #print("best model score is: "+str(checkpoint_callback.best_model_score))
     if(exists(hparams.save+f'/logs/train.part')):
@@ -125,7 +125,7 @@ def test(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_da
         trainer = Trainer(logger=logger, gpus=hparams.gpus,resume_from_checkpoint=checkpoint_path)
         trainer.test(model, test_dataloader)
         result = model.results
-        print("results in the test function: "+str(result))
+        #print("results in the test function: "+str(result))
         test_f.write(f'{checkpoint_path}\t{result}\n')
         test_f.flush()
     test_f.close()
@@ -142,7 +142,7 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     checkpoint_paths = get_checkpoint_path(hparams)
     assert len(checkpoint_paths) == 1
     checkpoint_path = checkpoint_paths[0]
-    print("checkpoint_path: "+str(checkpoint_path))
+    #print("checkpoint_path: "+str(checkpoint_path))
     if has_cuda:
         if hparams.task == 'conj':
             loaded_hparams_dict = torch.load(checkpoint_path)['hyper_parameters']
@@ -167,10 +167,10 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     start_time = time.time()
     model.all_sentences = all_sentences
     tested = trainer.test(model, dataloaders=test_dataloader, ckpt_path=checkpoint_path)
-    print("after train.test: "+str(tested))
+    #print("after train.test: "+str(tested))
     end_time = time.time()
     print(f'Total Time taken = {end_time-start_time} s')
-    print("model after testing is: "+str(model))
+    #print("model after testing is: "+str(model))
     return model
 
 # this splits sentences acc to conj model
@@ -263,9 +263,9 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         f.close()
 
     if hparams.rescoring:    
-        print()
+        #print()
         print("Starting re-scoring ...")
-        print()
+        #print()
 
         sentence_line_nums, prev_line_num, curr_line_num, no_extractions = set(), 0, 0, dict()
         for sentence_str in model.all_predictions_oie:
@@ -283,7 +283,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         # testing rescoring 
         #inp_fp = model.predictions_f_allennlp
         inp_fp = "results/predictions.txt.allennlp"
-        print("inp_fp is: "+str(inp_fp))
+        #print("inp_fp is: "+str(inp_fp))
         rescored = rescore(inp_fp, model_dir=hparams.rescore_model, batch_size=256)
 
         all_predictions, sentence_str = [], ''
@@ -464,9 +464,9 @@ def main(hparams):
         #verbose=True, monitor='eval_acc', mode='max', every_n_epochs = 1, save_on_train_epoch_end = True, period=1)
         checkpoint_callback = ModelCheckpoint(filename="{epoch:02d}_{val_acc:.3f}", save_top_k=-1, monitor = "val_acc", mode="max")
         #save_last
-        print("best model path is: "+checkpoint_callback.best_model_path)
-        print("best model path is: "+str(checkpoint_callback.best_model_score))
-        print("monitor: "+str(checkpoint_callback.monitor))
+        #print("best model path is: "+checkpoint_callback.best_model_path)
+        #print("best model path is: "+str(checkpoint_callback.best_model_score))
+        #print("monitor: "+str(checkpoint_callback.monitor))
             #checkpoint_callback = ModelCheckpoint(filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, mode="auto")
             #filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, monitor='eval_acc', mode='max', save_top_k=hparams.save_k if not hparams.debug else 0, period=0)
 
@@ -491,7 +491,7 @@ def main(hparams):
     
 
     train_dataset, val_dataset, test_dataset, meta_data_vocab, all_sentences = data.process_data_new(hparams)
-    print("created training set")
+    #print("created training set")
     '''
     for t in train_dataset:
     	print("train dataset: "+str(t)+"\n")
@@ -507,9 +507,9 @@ def main(hparams):
     val_dataloader = DataLoader(val_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
     test_dataloader = DataLoader(test_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
     
-    print("length of train_dataloader: "+str(train_dataloader))
-    print("length of val_dataloader: "+str(len(val_dataloader)))
-    print("length of test_dataloader: "+str(len(test_dataloader)))
+    #print("length of train_dataloader: "+str(train_dataloader))
+    #print("length of val_dataloader: "+str(len(val_dataloader)))
+    #print("length of test_dataloader: "+str(len(test_dataloader)))
 
     for process in hparams.mode.split('_'):
     	#print("about to call global()")

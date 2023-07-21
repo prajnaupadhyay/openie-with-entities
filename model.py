@@ -557,7 +557,7 @@ class Model(pl.LightningModule):
                       "eval_lastf1": metrics['carb_lastf1']}
             self.log('val_acc', result['eval_f1'])
 
-        print('\nResults: ' + str(result))
+        #print('\nResults: ' + str(result))
         # For computing the constraint violations
         # if hasattr(self, '_constD') and self.hparams.constraints != '':
         #     for key in self._constD:
@@ -568,7 +568,7 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         eval_results = self.evaluation_end(outputs, 'dev')
-        print("eval results are: "+str(eval_results))
+        #print("eval results are: "+str(eval_results))
         result = {}
         if eval_results != None:
             result = {"log": eval_results, "eval_acc": eval_results['eval_f1']}

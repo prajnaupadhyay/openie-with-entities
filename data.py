@@ -159,9 +159,9 @@ def verb_tags(spacy_sentence):
 
 # for each sentence, read the tagged entities and create ds
 def ent_tags(sentence, ent_list):
-    print("this is the entity list: "+str(ent_list))
+    #print("this is the entity list: "+str(ent_list))
     tokens = sentence.split()
-    print("tokens = "+str(tokens))
+    #print("tokens = "+str(tokens))
     ent = [0] * len(tokens)
     reverse_ent = [0] * len(tokens)
     ent_indices, ent_words = [], []
@@ -169,13 +169,13 @@ def ent_tags(sentence, ent_list):
     pos = 0
     for ent_index, entity in enumerate(ent_list):
         pos = pos + 1
-        print("entity is: "+str(entity))
-        print("offset of this entity is: "+str(entity[1]))
-        print("length of sentence = "+str(len(ent)))
+        #print("entity is: "+str(entity))
+        #print("offset of this entity is: "+str(entity[1]))
+        #print("length of sentence = "+str(len(ent)))
         index1 = char_index_to_word_index(tokens, entity[1], "spacy")
         index2 = index1 + len(entity[0].split(' '))
-        print("index1 = "+str(index1))
-        print("index2 = "+str(index2))
+        #print("index1 = "+str(index1))
+        #print("index2 = "+str(index2))
         if ent_pos[index1] > 0:  # we have seen this token in another entity, we skip (Texas-Louisiana problem)
             pos -= 1
         else:
@@ -524,27 +524,27 @@ def process_data_new(hparams, predict_sentences=None):
         if not os.path.exists(cached_train_fp) or hparams.build_cache:
             train_examples, _ = _process_data_new(train_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(train_examples, open(cached_train_fp, 'wb'))
-            print("1")
+            #print("1")
         else:
             train_examples = pickle.load(open(cached_train_fp, 'rb'))
-            print("2")
-            print(cached_train_fp)
+            #print("2")
+            #print(cached_train_fp)
 
         if not os.path.exists(cached_dev_fp) or hparams.build_cache:
             dev_examples, _ = _process_data_new(dev_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(dev_examples, open(cached_dev_fp, 'wb'))
-            print("3")
+            #print("3")
         else:
             dev_examples = pickle.load(open(cached_dev_fp, 'rb'))
-            print("4")
+            #print("4")
 
         if not os.path.exists(cached_test_fp) or hparams.build_cache:
             test_examples, _ = _process_data_new(test_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(test_examples, open(cached_test_fp, 'wb'))
-            print("4")
+            #print("4")
         else:
             test_examples = pickle.load(open(cached_test_fp, 'rb'))
-            print("5")
+            #print("5")
         #print(data.Dataset(train_examples, fields=fields.values()).fields)
 
         META_DATA.build_vocab(data.Dataset(train_examples, fields=fields.values()), data.Dataset(
