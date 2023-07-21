@@ -56,7 +56,7 @@ def train(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_d
     model = Model(hparams, meta_data_vocab)
     logger = get_logger('train', hparams)
     trainer = Trainer(enable_progress_bar=True, num_sanity_val_steps=hparams.num_sanity_val_steps, gpus=hparams.gpus, logger=logger,
-    callbacks=checkpoint_callback, min_epochs=hparams.epochs, max_epochs=hparams.epochs, gradient_clip_val=hparams.gradient_clip_val,
+                      callbacks=checkpoint_callback, min_epochs=hparams.epochs, max_epochs=hparams.epochs, gradient_clip_val=hparams.gradient_clip_val,
                       track_grad_norm=hparams.track_grad_norm)
     #print("in run.py train function, after initializing trainer")
     # val_percent_check=0, max_steps=hparams.max_steps, progress_bar_refresh_rate=10
@@ -88,14 +88,14 @@ def resume(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_
 
     logger = get_logger('resume', hparams)
     trainer = Trainer(enable_progress_bar=True, num_sanity_val_steps=5, gpus=hparams.gpus, logger=logger, callbacks=checkpoint_callback,
-    min_epochs=hparams.epochs, max_epochs=hparams.epochs, resume_from_checkpoint=checkpoint_path, accumulate_grad_batches=int(hparams.accumulate_grad_batches),
-    gradient_clip_val=hparams.gradient_clip_val,  limit_train_batches=hparams.limit_train_batches, track_grad_norm=hparams.track_grad_norm,
-    val_check_interval=hparams.val_check_interval)
+                      min_epochs=hparams.epochs, max_epochs=hparams.epochs, resume_from_checkpoint=checkpoint_path, accumulate_grad_batches=int(hparams.accumulate_grad_batches),
+                      gradient_clip_val=hparams.gradient_clip_val,  limit_train_batches=hparams.limit_train_batches, track_grad_norm=hparams.track_grad_norm,
+                      val_check_interval=hparams.val_check_interval)
     trainer.fit(model, train_dataloaders=train_dataloader,
                 val_dataloaders=val_dataloader)
     if(exists(hparams.save+f'/logs/resume.part')):
         shutil.move(hparams.save+f'/logs/resume.part',
-                hparams.save+f'/logs/resume')
+                    hparams.save+f'/logs/resume')
     #print("best model path is: "+checkpoint_callback.best_model_path)
 
 # We can probably merge predict and test. and removing caching when only testing - VA
@@ -138,7 +138,7 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
         hparams.checkpoint = hparams.conj_model
     if hparams.task == 'oie':
         hparams.checkpoint = hparams.oie_model
-        
+
     checkpoint_paths = get_checkpoint_path(hparams)
     assert len(checkpoint_paths) == 1
     checkpoint_path = checkpoint_paths[0]
@@ -154,7 +154,7 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     loaded_hparams_dict = data.override_args(loaded_hparams_dict, current_hparams_dict, sys.argv[1:])
     loaded_hparams = data.convert_to_namespace(loaded_hparams_dict)
     #if hparams.task == "conj":
-        #print("loaded hparams are: "+str(loaded_hparams))
+    #print("loaded hparams are: "+str(loaded_hparams))
     model = Model(loaded_hparams, meta_data_vocab)
 
     if mapping != None:
@@ -215,7 +215,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
             else:
                 assert False
         sentences.append('\n')
-        
+
         count = 0
         for sentence_indices in sentences_indices:
             if len(sentence_indices) == 0:
@@ -252,9 +252,9 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
     hparams.model_str = 'bert-base-cased'
     _, _, split_test_dataset, meta_data_vocab, _ = data.process_data_new(hparams, sentences)
     split_test_dataloader = DataLoader(split_test_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
-    
+
     model = predict(hparams, None, meta_data_vocab, None, None, split_test_dataloader,
-             mapping=mapping, conj_word_mapping=conj_word_mapping, all_sentences=all_sentences)
+                    mapping=mapping, conj_word_mapping=conj_word_mapping, all_sentences=all_sentences)
 
     if 'labels' in hparams.type:
         label_lines = get_labels(hparams, model, sentences, orig_sentences, sentences_indices)
@@ -262,7 +262,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         f.write('\n'.join(label_lines))
         f.close()
 
-    if hparams.rescoring:    
+    if hparams.rescoring:
         #print()
         print("Starting re-scoring ...")
         #print()
@@ -270,7 +270,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         sentence_line_nums, prev_line_num, curr_line_num, no_extractions = set(), 0, 0, dict()
         for sentence_str in model.all_predictions_oie:
             sentence_str = sentence_str.strip('\n')
-            num_extrs = len(sentence_str.split('\n'))-1 
+            num_extrs = len(sentence_str.split('\n'))-1
             if num_extrs == 0:
                 if curr_line_num not in no_extractions:
                     no_extractions[curr_line_num] = []
@@ -302,12 +302,12 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
                 sentence_str = f'{sentence}\n'
                 exts = []
             if line_i in no_extractions:
-                for no_extraction_sentence in no_extractions[line_i]: 
+                for no_extraction_sentence in no_extractions[line_i]:
                     all_predictions.append(f'{no_extraction_sentence}\n')
 
             arg1 = re.findall("<arg1>.*</arg1>", fields[1])[0].strip('<arg1>').strip('</arg1>').strip()
             rel = re.findall("<rel>.*</rel>", fields[1])[0].strip('<rel>').strip('</rel>').strip()
-            arg2 = re.findall("<arg2>.*</arg2>", fields[1])[0].strip('<arg2>').strip('</arg2>').strip()            
+            arg2 = re.findall("<arg2>.*</arg2>", fields[1])[0].strip('<arg2>').strip('</arg2>').strip()
             extraction = Extraction(pred=rel, head_pred_index=None, sent=sentence, confidence=math.exp(confidence), index=0)
             extraction.addArg(arg1)
             extraction.addArg(arg2)
@@ -322,7 +322,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         all_predictions.append(sentence_str+''.join(exts))
 
         if line_i+1 in no_extractions:
-            for no_extraction_sentence in no_extractions[line_i+1]: 
+            for no_extraction_sentence in no_extractions[line_i+1]:
                 all_predictions.append(f'{no_extraction_sentence}\n')
 
         if hparams.out != None:
@@ -353,7 +353,7 @@ def get_labels(hparams, model, sentences, orig_sentences, sentences_indices):
             assert sentence == sentences[idx3]
             original_sentence = orig_sentences[i]
             predictions = outputs[idx1]['predictions'][idx2]
-            
+
             all_extractions, all_str_labels, len_exts = [], [], []
             for prediction in predictions:
                 if prediction.sum().item() == 0:
@@ -367,7 +367,7 @@ def get_labels(hparams, model, sentences, orig_sentences, sentences_indices):
                 labels = labels[:-3]
                 if 1 not in prediction and 2 not in prediction:
                     continue
-                
+
                 str_labels = ' '.join([label_dict[x] for x in labels])
                 lines.append(str_labels)
 
@@ -405,7 +405,7 @@ def prepare_test_dataset(hparams, model, sentences, orig_sentences, sentences_in
             assert sentence == sentences[idx3]
             original_sentence = orig_sentences[i]
             predictions = outputs[idx1]['predictions'][idx2]
-            
+
             all_extractions, all_str_labels, len_exts = [], [], []
             for prediction in predictions:
                 if prediction.sum().item() == 0:
@@ -433,7 +433,7 @@ def prepare_test_dataset(hparams, model, sentences, orig_sentences, sentences_in
                     len_exts.append(len(extraction.split()))
                 else:
                     assert False
-            
+
             if hparams.rescoring == 'others':
                 for ext_i, extraction in enumerate(all_extractions):
                     other_extractions = ' '.join(all_extractions[:ext_i]+all_extractions[ext_i+1:])
@@ -467,8 +467,8 @@ def main(hparams):
         #print("best model path is: "+checkpoint_callback.best_model_path)
         #print("best model path is: "+str(checkpoint_callback.best_model_score))
         #print("monitor: "+str(checkpoint_callback.monitor))
-            #checkpoint_callback = ModelCheckpoint(filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, mode="auto")
-            #filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, monitor='eval_acc', mode='max', save_top_k=hparams.save_k if not hparams.debug else 0, period=0)
+        #checkpoint_callback = ModelCheckpoint(filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, mode="auto")
+        #filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, monitor='eval_acc', mode='max', save_top_k=hparams.save_k if not hparams.debug else 0, period=0)
 
     else:
         checkpoint_callback = None
@@ -488,7 +488,7 @@ def main(hparams):
             hparams.train_fp = hparams.dev_fp = hparams.test_fp = 'data/debug_oie.labels'
 
     hparams.gradient_clip_val = 5 if hparams.gradient_clip_val == None else float(hparams.gradient_clip_val)
-    
+
 
     train_dataset, val_dataset, test_dataset, meta_data_vocab, all_sentences = data.process_data_new(hparams)
     #print("created training set")
@@ -506,26 +506,23 @@ def main(hparams):
                                   collate_fn=data.pad_data_with_ent, shuffle=True, num_workers=1)
     val_dataloader = DataLoader(val_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
     test_dataloader = DataLoader(test_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
-    
+
     #print("length of train_dataloader: "+str(train_dataloader))
     #print("length of val_dataloader: "+str(len(val_dataloader)))
     #print("length of test_dataloader: "+str(len(test_dataloader)))
 
     for process in hparams.mode.split('_'):
-    	#print("about to call global()")
+        #print("about to call global()")
         globals()[process](hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences)
-    
-	
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ent_extractor", help="additional option to specify entity extractor, can be flair or spacy")
-    parser.add_argument("--inferencing", help="if inferencing is also needed")
     parser = Trainer.add_argparse_args(parser)
     parser = params.add_args(parser)
     hyperparams = parser.parse_args()
     #print(str(hyperparams))
     set_seed(hyperparams.seed)
-
     main(hyperparams)
 

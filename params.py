@@ -35,6 +35,8 @@ def add_args(parser):
     parser.add_argument('--predict_format', type=str,
                         default='oie')  # oie/allennlp
     parser.add_argument('--build_cache', action='store_true')
+    parser.add_argument("--ent_extractor", help="additional option"
+                             " to specify entity extractor, can be flair or spacy")
 
     # Model arguments
     # bert-large-cased-whole-word-masking, bert-large-cased, bert-base-cased
@@ -54,6 +56,8 @@ def add_args(parser):
     parser.add_argument('--rescore_model', type=str, default='models/rescore_model')
     parser.add_argument('--write_allennlp', action='store_true')
     parser.add_argument('--write_async', action='store_true')
+    parser.add_argument("--inferencing", help="if inferencing is also needed")
+
 
     # constraints
     parser.add_argument('--wreg', type=float, default=0)
