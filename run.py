@@ -153,8 +153,8 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     current_hparams_dict = vars(hparams)
     loaded_hparams_dict = data.override_args(loaded_hparams_dict, current_hparams_dict, sys.argv[1:])
     loaded_hparams = data.convert_to_namespace(loaded_hparams_dict)
-    if hparams.task == "conj":
-        print("loaded hparams are: "+str(loaded_hparams))
+    #if hparams.task == "conj":
+        #print("loaded hparams are: "+str(loaded_hparams))
     model = Model(loaded_hparams, meta_data_vocab)
 
     if mapping != None:
