@@ -177,108 +177,111 @@ class Model(pl.LightningModule):
             # print("shape is: "+str(word_hidden_states.shape))
             word_scores = self._labelling_layer(word_hidden_states)
             # print("after applying labelling layer, word scores size = "+str(word_scores.shape)+" and content = "+str(word_scores))
-            ent_excl = True
-            ent_rel = True
 
-            if self.hparams.task == 'oie' and batch.ent_pos.nelement():
-                #print(batch.ent_pos.nelement())
-                if ent_rel:
-                    _,labels_length,_ = word_scores.shape
-                    unique_entities, ids_maximum = torch.max(batch.ent_pos, 1)
-                    word_pred = torch.argmax(word_scores, dim=2)
-                    cond_mat = torch.ones(batch_size, labels_length, 6, device='cuda')
-                    found = 0
-                    index = -1
-                    for j in unique_entities:
-                        index = index + 1
-                        for k in range(1, j + 1):
-                            # print("k is " + str(k))
-                            # print(batch.ent_pos[index].shape)
-                            words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
-                            for i in range(0, len(words_indices)):
-                                w = words_indices[i]
-                                # print(all_depth_scores[index, d, w])
-                                if word_pred[index][w] == 2:
-                                    min_val = torch.min(word_scores[index][w]) -1
-                                    cond_mat[index][w][2] = min_val * 1.0 / word_scores[index][w][2]
-      
-                    word_scores = torch.mul(word_scores, cond_mat)
+            if self.hparams.inferencing == 'true':
+                ent_excl = True
+                ent_rel = True
 
-         
 
-                if ent_excl:
-
-                    unique_entities, ids_maximum = torch.max(batch.ent_pos, 1)
-                    word_pred = torch.argmax(word_scores, dim=2)
-                    index = -1
-                    cond_mat = torch.ones(batch_size, labels_length, 6, device='cuda')
-                    # for each entry in batch
-                    for j in unique_entities:
-                        index = index + 1
-                        sub_stats = {"avg_prob": 0.0, "ent_index": -1}
-                        obj_stats = {"avg_prob": 0.0, "ent_index": -1}
-                        # print("j is "+str(j))
-                        for k in range(1, j + 1):
-                            # print("k is " + str(k))
-                            # print(batch.ent_pos[index].shape)
-                            words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
-                            prob_for_ent_arg1 = 0.0
-                            prob_for_ent_arg2 = 0.0
-                            # print(words_indices)
-                            count_arg1 = 0
-                            count_arg2 = 0
-                            for i in range(0, len(words_indices)):
-                                w = words_indices[i]
-                                # print(all_depth_scores[index, d, w])
-                                if word_pred[index][w] == 1:
-                                    prob_for_ent_arg1 += word_scores[index, w, 1]
-                                    count_arg1+=1
-                                if word_pred[index][w] == 3:
-                                    prob_for_ent_arg2 += word_scores[index, w, 3]
-                                    count_arg2+=1
-                            prob_for_ent_arg1 = prob_for_ent_arg1 / count_arg1 if count_arg1>0 else 0.0
-                            prob_for_ent_arg2 = prob_for_ent_arg2 / count_arg2 if count_arg2>0 else 0.0
-                            if prob_for_ent_arg1 > sub_stats["avg_prob"]:
-                                sub_stats["avg_prob"] = prob_for_ent_arg1
-                                sub_stats["ent_index"] = k
-                            if prob_for_ent_arg2 > obj_stats["avg_prob"]:
-                                obj_stats["avg_prob"] = prob_for_ent_arg2
-                                obj_stats["ent_index"] = k
-                        # entity exclusivity, just one entity per object or subject. all the extra entities get label NONE.
-                        # we multiply the label of none with max/none. like this we avoid putting them in the relation
-                        # for the entities that should be part of the subject/object, we ensure we have all their tokens
-                        for k in range(1, j + 1):
-                            words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
-                            if k != sub_stats["ent_index"]:  # this is not the entity with the highest token S probability
+                if self.hparams.task == 'oie' and batch.ent_pos.nelement():
+                    #print(batch.ent_pos.nelement())
+                    if ent_rel:
+                        _,labels_length,_ = word_scores.shape
+                        unique_entities, ids_maximum = torch.max(batch.ent_pos, 1)
+                        word_pred = torch.argmax(word_scores, dim=2)
+                        cond_mat = torch.ones(batch_size, labels_length, 6, device='cuda')
+                        found = 0
+                        index = -1
+                        for j in unique_entities:
+                            index = index + 1
+                            for k in range(1, j + 1):
+                                # print("k is " + str(k))
+                                # print(batch.ent_pos[index].shape)
+                                words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
                                 for i in range(0, len(words_indices)):
                                     w = words_indices[i]
-                                    if word_pred[index][w] == 1: 
-                                        max_val = torch.max(word_scores[index][w]) +1
-                                        cond_mat[index][w][0] = max_val*1.0 / word_scores[index][w][0]
-                            else:
-                                for i in range(0, len(words_indices)):
-                                    w = words_indices[i]
-                                    if word_pred[index][w] != 1: # all tokens of entity have the same class
-                                        max_val = torch.max(word_scores[index][w]) + 1
-                                        cond_mat[index][w][1] = max_val * 1.0 / word_scores[index][w][1]
-                            if k != obj_stats["ent_index"]:  # this is not the entity with the highest token S probability
-                                for i in range(0, len(words_indices)):
-                                    w = words_indices[i]
-                                    if word_pred[index][w] == 3:  
-                                        max_val = torch.max(word_scores[index][w]) +1
-                                        cond_mat[index][w][0] = max_val*1.0 / word_scores[index][w][0]
-                            else:
-                                for i in range(0, len(words_indices)):
-                                    w = words_indices[i]
-                                    if word_pred[index][w] != 3: # all tokens of entity have the same class
-                                        max_val = torch.max(word_scores[index][w]) + 1
-                                        cond_mat[index][w][3] = max_val * 1.0 / word_scores[index][w][3]
+                                    # print(all_depth_scores[index, d, w])
+                                    if word_pred[index][w] == 2:
+                                        min_val = torch.min(word_scores[index][w]) -1
+                                        cond_mat[index][w][2] = min_val * 1.0 / word_scores[index][w][2]
 
-                    word_scores = torch.mul(word_scores, cond_mat)
+                        word_scores = torch.mul(word_scores, cond_mat)
 
-                all_depth_scores.append(word_scores)
-            else:
-                all_depth_scores.append(word_scores)
+
+
+                    if ent_excl:
+
+                        unique_entities, ids_maximum = torch.max(batch.ent_pos, 1)
+                        word_pred = torch.argmax(word_scores, dim=2)
+                        index = -1
+                        cond_mat = torch.ones(batch_size, labels_length, 6, device='cuda')
+                        # for each entry in batch
+                        for j in unique_entities:
+                            index = index + 1
+                            sub_stats = {"avg_prob": 0.0, "ent_index": -1}
+                            obj_stats = {"avg_prob": 0.0, "ent_index": -1}
+                            # print("j is "+str(j))
+                            for k in range(1, j + 1):
+                                # print("k is " + str(k))
+                                # print(batch.ent_pos[index].shape)
+                                words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
+                                prob_for_ent_arg1 = 0.0
+                                prob_for_ent_arg2 = 0.0
+                                # print(words_indices)
+                                count_arg1 = 0
+                                count_arg2 = 0
+                                for i in range(0, len(words_indices)):
+                                    w = words_indices[i]
+                                    # print(all_depth_scores[index, d, w])
+                                    if word_pred[index][w] == 1:
+                                        prob_for_ent_arg1 += word_scores[index, w, 1]
+                                        count_arg1+=1
+                                    if word_pred[index][w] == 3:
+                                        prob_for_ent_arg2 += word_scores[index, w, 3]
+                                        count_arg2+=1
+                                prob_for_ent_arg1 = prob_for_ent_arg1 / count_arg1 if count_arg1>0 else 0.0
+                                prob_for_ent_arg2 = prob_for_ent_arg2 / count_arg2 if count_arg2>0 else 0.0
+                                if prob_for_ent_arg1 > sub_stats["avg_prob"]:
+                                    sub_stats["avg_prob"] = prob_for_ent_arg1
+                                    sub_stats["ent_index"] = k
+                                if prob_for_ent_arg2 > obj_stats["avg_prob"]:
+                                    obj_stats["avg_prob"] = prob_for_ent_arg2
+                                    obj_stats["ent_index"] = k
+                            # entity exclusivity, just one entity per object or subject. all the extra entities get label NONE.
+                            # we multiply the label of none with max/none. like this we avoid putting them in the relation
+                            # for the entities that should be part of the subject/object, we ensure we have all their tokens
+                            for k in range(1, j + 1):
+                                words_indices = ((batch.ent_pos[index] == k).nonzero(as_tuple=True)[0])
+                                if k != sub_stats["ent_index"]:  # this is not the entity with the highest token S probability
+                                    for i in range(0, len(words_indices)):
+                                        w = words_indices[i]
+                                        if word_pred[index][w] == 1:
+                                            max_val = torch.max(word_scores[index][w]) +1
+                                            cond_mat[index][w][0] = max_val*1.0 / word_scores[index][w][0]
+                                else:
+                                    for i in range(0, len(words_indices)):
+                                        w = words_indices[i]
+                                        if word_pred[index][w] != 1: # all tokens of entity have the same class
+                                            max_val = torch.max(word_scores[index][w]) + 1
+                                            cond_mat[index][w][1] = max_val * 1.0 / word_scores[index][w][1]
+                                if k != obj_stats["ent_index"]:  # this is not the entity with the highest token S probability
+                                    for i in range(0, len(words_indices)):
+                                        w = words_indices[i]
+                                        if word_pred[index][w] == 3:
+                                            max_val = torch.max(word_scores[index][w]) +1
+                                            cond_mat[index][w][0] = max_val*1.0 / word_scores[index][w][0]
+                                else:
+                                    for i in range(0, len(words_indices)):
+                                        w = words_indices[i]
+                                        if word_pred[index][w] != 3: # all tokens of entity have the same class
+                                            max_val = torch.max(word_scores[index][w]) + 1
+                                            cond_mat[index][w][3] = max_val * 1.0 / word_scores[index][w][3]
+
+                        word_scores = torch.mul(word_scores, cond_mat)
+
+                    all_depth_scores.append(word_scores)
+                else:
+                    all_depth_scores.append(word_scores)
 
             d += 1
             if d >= depth:

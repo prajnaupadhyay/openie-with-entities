@@ -520,6 +520,7 @@ def main(hparams):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ent_extractor", help="additional option to specify entity extractor, can be flair or spacy")
+    parser.add_argument("--inferencing", help="if inferencing is also needed")
     parser = Trainer.add_argparse_args(parser)
     parser = params.add_args(parser)
     hyperparams = parser.parse_args()
