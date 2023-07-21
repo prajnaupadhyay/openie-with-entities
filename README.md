@@ -23,10 +23,10 @@ Download the model and the datasets. It requires installaing `git lfs`.
 
 ```
 git lfs install
-git clone https://huggingface.co/prajnaupadhyay/openie_with_entities
+git clone https://huggingface.co/prajnaupadhyay/openie-with-entities
 ```
 
-This will download the folder `openie_with_entities` with sub-folders `models` and `datasets` under it.
+This will download the folder `openie-with-entities` with sub-folders `models` and `datasets` under it.
 
 #### Models
 
