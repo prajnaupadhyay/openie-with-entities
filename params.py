@@ -56,7 +56,7 @@ def add_args(parser):
     parser.add_argument('--rescore_model', type=str, default='models/rescore_model')
     parser.add_argument('--write_allennlp', action='store_true')
     parser.add_argument('--write_async', action='store_true')
-    parser.add_argument("--inferencing", help="if inferencing is also needed")
+    parser.add_argument("--inferencing", help="if inferencing is also needed", default='false')
 
 
     # constraints
