@@ -50,6 +50,11 @@ There is 1 test dataset:
 
 ## Running the model to get triples
 
+Please make these changes to the input file before running the model:
+
+i) The file should contain one sentence per line
+ii) The coordinate boundary detection model that is used by `openie6` needs all the punctuation symbols such as `,`, `;` or `.` to be preceded by space. For instance, the sentence "Shahrad Taheri received funding from Microsoft, Amazon, and Google.", should be changed to "Shahrad Taheri received funding from Microsoft , Amazon , and Google ." The final results may be affected if this change is not made.
+
 ```
 python run.py --mode splitpredict --inp <path/to/input_file> --out <path/to/output_file>  --task oie --gpus 1 --oie_model openie-with-entities/models/constrained/clean_seed_777.ckpt --conj_model openie-with-entities/models/coordinate_boundary/conj.ckpt --ent_extractor flair --num_extractions 5 --type labels
 ```
