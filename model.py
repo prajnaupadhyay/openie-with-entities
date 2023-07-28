@@ -158,25 +158,20 @@ class Model(pl.LightningModule):
                 it = it + 1
 
             hidden_states = self._dropout(hidden_states)
-            # print("after applying dropout(hidden states): "+str(hidden_states))
-            # print("shape is: "+str(hidden_states.shape))
+
             word_hidden_states = torch.gather(hidden_states, 1,
                                               batch.word_starts.unsqueeze(2).repeat(1, 1, hidden_states.shape[2]))
-            # print("word hidden states after torch.gather: "+str(word_hidden_states))
-            # print("shape is: "+str(word_hidden_states.shape))
+
 
             if d != 0:
                 greedy_labels = torch.argmax(word_scores, dim=-1)
-                # print("greedy labels: "+str(greedy_labels))
-                # print("shape is: "+str(greedy_labels.shape))
+
                 label_embeddings = self._label_embeddings(greedy_labels)
                 word_hidden_states = word_hidden_states + label_embeddings
 
             word_hidden_states = self._merge_layer(word_hidden_states)
-            # print("after applying merge layer: "+str(word_hidden_states))
-            # print("shape is: "+str(word_hidden_states.shape))
+
             word_scores = self._labelling_layer(word_hidden_states)
-            # print("after applying labelling layer, word scores size = "+str(word_scores.shape)+" and content = "+str(word_scores))
             all_depth_scores.append(word_scores)
 
             d += 1
@@ -192,7 +187,6 @@ class Model(pl.LightningModule):
                 if not valid_ext:
                     break
 
-                    # (batch_size, seq_length, max_depth)
         all_depth_predictions, all_depth_confidences = [], []
         batch_size, num_words, _ = word_scores.shape
         batch.labels = batch.labels.long()
@@ -200,8 +194,7 @@ class Model(pl.LightningModule):
             if mode == 'train':
                 batch_labels_d = batch.labels[:, d, :]
                 mask = torch.ones(batch.word_starts.shape).int().type_as(hidden_states)
-                # print("size 1st arg: "+str(word_scores.reshape(batch_size*num_words, -1).size()))
-                # print("size 2nd arg: "+str(batch.labels[:, d, :].reshape(-1).size()))
+
                 ## this is where the difference between the computed labels and the given labels is being computed
                 loss += self._loss(word_scores.reshape(batch_size * num_words, -1), batch.labels[:, d, :].reshape(-1))
             else:
@@ -222,10 +215,8 @@ class Model(pl.LightningModule):
             if constraints != '':
                 all_depth_scores = torch.cat([d.unsqueeze(1) for d in all_depth_scores], dim=1)
                 temp_d = [d.unsqueeze(1) for d in all_depth_scores]
-                # print("after d.unsqueeze(1): "+str(temp_d))
-                # print("all depth scores after torch.cat: "+str(all_depth_scores)+", shape is: "+str(all_depth_scores.shape))
+
                 all_depth_scores = torch.softmax(all_depth_scores, dim=-1)
-                # print("all depth scores after torch.softmax: "+str(all_depth_scores)+", shape is: "+str(all_depth_scores.shape))
 
                 const_loss = self.constrained_loss(all_depth_scores, batch, constraints, cweights) / batch_size
                 loss = const_loss
@@ -242,7 +233,6 @@ class Model(pl.LightningModule):
             all_depth_predictions = torch.cat(all_depth_predictions, dim=1)
             all_depth_confidences = torch.cat(all_depth_confidences, dim=1)
 
-            #print("all_depth_predictions are: "+str(all_depth_predictions))
 
             output_dict['predictions'] = all_depth_predictions
             output_dict['scores'] = all_depth_confidences
@@ -278,35 +268,17 @@ class Model(pl.LightningModule):
 
     def constrained_loss(self, all_depth_scores, batch, constraints, cweights):
         batch_size, depth, num_words, labels = all_depth_scores.shape
-        # print("all depth scores shape is: "+str(all_depth_scores.shape))
-        # print("all depth scores is: "+str(all_depth_scores))
+
         hinge_loss = 0
-        # print("in constrained loss")
-        # print("batch.verb_index = "+str(batch.verb_index))
-        # print("all_depth_scores shape = "+str(all_depth_scores.shape)+", all_depth_scores = "+str(all_depth_scores))
-        # print("batch.verb_index.unsqueeze(1).unsqueeze(3).repeat(1, depth, 1, labels)" + str(batch.verb_index.unsqueeze(1).unsqueeze(3).repeat(1, depth, 1, labels)))
         # the following lines collect the scores of the words that have been recognised as verbs according to batch.verb_index
         verb_scores = torch.gather(all_depth_scores, 2,
                                    batch.verb_index.unsqueeze(1).unsqueeze(3).repeat(1, depth, 1, labels))
-        # print("verb scores shape = "+str(verb_scores.shape)+" verb scores are: "+str(verb_scores))
-        # this collects scores of words that are verbs which have been predicted as relations. Index 2 indicates 'rel' according to label_dict
         verb_rel_scores = verb_scores[:, :, :, 2]
-        # print("verb rel scores are: "+str(verb_rel_scores)+", shape is: "+str(verb_rel_scores.shape))
-        # (batch_size, depth, num_words)
-        # this sets scores of words that do not exist to zero
+
         verb_rel_scores = verb_rel_scores * (batch.verb_index != 0).unsqueeze(1).float()
-        # print("verb rel scores after multiplication are: "+str(verb_rel_scores)+", shape is: "+str(verb_rel_scores.shape))
-        # print("this is all depth scores: "+str(all_depth_scores))
-        #print("batch.ent_pos: "+str(batch.ent_pos))
-        #print("len(batch.ent_pos): "+str(len(batch.ent_pos)))
-        #print("num_words: "+str(num_words))
-        #print("batch.ent_index is: "+str(batch.ent_index))
+
         t1 = all_depth_scores
         t2 = batch.ent_index.unsqueeze(1).unsqueeze(3).repeat(1, depth, 1, labels).long()
-        #print("t2 is: "+str(t2))
-
-        #print("shape of t1: "+str(t1.shape))
-        #print("shape of t2: "+str(t2.shape))
 
 
         ent_scores = torch.gather(t1, 2, t2)
@@ -383,7 +355,6 @@ class Model(pl.LightningModule):
 
         # arg1 or arg2 can have max 1 entity
         if 'ent-excl' in constraints:
-            # print("in ent-excl")
             index = -1
             # for each entry in batch
             for j in unique_entities:
@@ -459,34 +430,12 @@ class Model(pl.LightningModule):
             nsubj_loss = ones_tensor - dependency_arg1_scores
             hinge_loss += cweights * nsubj_loss.sum()
 
-        '''
-        if 'ent' in constraints and batch.ent_index!=None:
-            #print(str(batch.ent_index))
-            ent_scores = torch.gather(all_depth_scores, 2, batch.ent_index.unsqueeze(1).unsqueeze(3).repeat(1, depth, 1, labels))
-            ent_nnone_scores = torch.max(ent_scores[:, :, :, 1:], dim=-1)[0]
-            column_loss = (1-torch.max(ent_nnone_scores, dim=1)[0]) * (batch.ent_index != 0).float()
-            hinge_loss += cweights*column_loss.sum()
-        '''
-
         return hinge_loss
-    '''
-    def get_progress_bar_dict(self):
-        running_train_loss = self.trainer.running_loss.mean()
-        avg_training_loss = running_train_loss.cpu().item() if running_train_loss is not None else float('NaN')
-        if type(self.trainer.checkpoint_callback.kth_value) != type(0.0):
-            best = self.trainer.checkpoint_callback.kth_value.item()
-        else:
-            best = self.trainer.checkpoint_callback.kth_value
-        tqdm = {'loss': '{:.3f}'.format(avg_training_loss), 'best': best}
-        return tqdm
-    '''
 
     def training_step(self, batch, batch_idx, optimizer_idx=-1):
-        # print("in training_step, batch is: "+str(batch))
-        # print("shape of batch text: "+str(batch['text'].shape))
+
         batch = data.dotdict(batch)
-        # print("batch is: "+str(batch))
-        # print("batch.labels shape is: "+str(batch.labels.shape))
+
         if self.hparams.multi_opt:
             constraints = self.hparams.constraints.split('_')[optimizer_idx]
             cweights = float(self.hparams.cweights.split('_')[optimizer_idx])
@@ -546,7 +495,6 @@ class Model(pl.LightningModule):
             if 'predict' in self.hparams.mode:
                 metrics = {'carb_f1': 0, 'carb_auc': 0, 'carb_lastf1': 0}
             else:
-                #print("outputs are: "+str(outputs))
                 for output in outputs:
                     if type(output['meta_data'][0]) != type(""):
                         output['meta_data'] = [self._meta_data_vocab.itos[m] for m in output['meta_data']]
@@ -557,13 +505,7 @@ class Model(pl.LightningModule):
                       "eval_lastf1": metrics['carb_lastf1']}
             self.log('val_acc', result['eval_f1'])
 
-        #print('\nResults: ' + str(result))
-        # For computing the constraint violations
-        # if hasattr(self, '_constD') and self.hparams.constraints != '':
-        #     for key in self._constD:
-        #         self._constD[key] = sum(self._constD[key]).item()
-        #     print('\nViolations: ', self._constD)
-        #     self._constD = dict()
+        
         return result
 
     def validation_epoch_end(self, outputs):

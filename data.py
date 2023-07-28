@@ -24,55 +24,46 @@ import sys
 import flair
 from flair.data import Sentence
 from flair.models import SequenceTagger
+
 tagger = SequenceTagger.load('ner-fast')
+
 
 # tag entities using flair ner
 
 
-
 def ent_tags_flair(sentence):
-    #print(sentence)
-    #print("this is the entity list: "+str(ent_list))
-
     pos = 0
 
-    s = Sentence(sentence, use_tokenizer = False)
+    s = Sentence(sentence, use_tokenizer=False)
 
-    ent = [0]*len(s)
-    reverse_ent= [0]*len(s)
-    ent_indices, ent_words=[], []
-    ent_pos=[0]*len(s)
+    ent = [0] * len(s)
+    reverse_ent = [0] * len(s)
+    ent_indices, ent_words = [], []
+    ent_pos = [0] * len(s)
 
     tagger.predict(s)
     entities = s.get_spans('ner')
 
-    #print(entities)
-    #for ent_index, entity in enumerate(ent_list):
     for e in entities:
         entity = []
         entity.append(e.text)
         entity.append(e.start_position)
-        pos=pos+1
-        #print("this entity is: "+str(e.text))
-        #print("offset of this entity is: "+str(e.start_position))
-        #print("length of sentence = "+str(len(ent)))
+        pos = pos + 1
         index1 = char_index_to_word_index(s, entity[1], "flair")
-        index2 = index1+len(entity[0].split())
-        #print("index1 = "+str(index1))
-        #print("index2 = "+str(index2))
-        if ent_pos[index1] > 0:# we have seen this token in another entity, we skip (Texas-Louisiana problem)
-            pos -=1
+        index2 = index1 + len(entity[0].split())
+        if ent_pos[index1] > 0:  # we have seen this token in another entity, we skip (Texas-Louisiana problem)
+            pos -= 1
         else:
-            for k in range(index1,index2):
-                ent[k]=1
-                ent_pos[k]=pos
+            for k in range(index1, index2):
+                ent[k] = 1
+                ent_pos[k] = pos
                 ent_indices.append(k)
                 ent_words.append(s[k].text.lower())
     for i in range(len(ent)):
-        if(ent[i]==0):
-            reverse_ent[i]=1
+        if ent[i] == 0:
+            reverse_ent[i] = 1
         else:
-            reverse_ent[i]=0
+            reverse_ent[i] = 0
     ent.append(0)
     ent.append(0)
     ent.append(0)
@@ -81,9 +72,6 @@ def ent_tags_flair(sentence):
     reverse_ent.append(1)
 
     return ent, reverse_ent, ent_indices, ent_words, ent_pos
-    #return ent, ent_indices, ent_words
-
-
 
 
 sys.stdout = open(1, 'w', encoding='utf-8', closefd=False)
@@ -95,26 +83,15 @@ def remerge_sent(sent):
     # this ensures spacy tokenization does not
     changed = True
     while changed:
-        #print(sent)
-        #print(changed)
-        #print("sent is: "+str(sent)+", len(sent) is: "+str(sent.__len__()))
         changed = False
         i = 0
         while i < sent.__len__() - 1:
-            #print("\n i is: "+str(i))
             tok = sent[i]
-            #print("tok is: "+str(tok))
-            #print(not tok.whitespace_)
             if not tok.whitespace_:
                 ntok = sent[i + 1]
-                #print("\ntok: "+str(tok)+", ntok: "+str(ntok))
-                #print("\ntok.idx: "+str(tok.idx)+", ntok.idx: "+str(ntok.idx))
-                #print("len(ntok): "+str(len(ntok)));
                 # in-place operation.
-                # sent.merge(tok.idx, ntok.idx + len(ntok))
                 with sent.retokenize() as retokenizer:
-                    retokenizer.merge(sent[i: i+2])
-                    #print("length after retokenization: "+str(sent.__len__()))
+                    retokenizer.merge(sent[i: i + 2])
                 changed = True
             i += 1
     return sent
@@ -159,9 +136,7 @@ def verb_tags(spacy_sentence):
 
 # for each sentence, read the tagged entities and create ds
 def ent_tags(sentence, ent_list):
-    #print("this is the entity list: "+str(ent_list))
     tokens = sentence.split()
-    #print("tokens = "+str(tokens))
     ent = [0] * len(tokens)
     reverse_ent = [0] * len(tokens)
     ent_indices, ent_words = [], []
@@ -169,13 +144,8 @@ def ent_tags(sentence, ent_list):
     pos = 0
     for ent_index, entity in enumerate(ent_list):
         pos = pos + 1
-        #print("entity is: "+str(entity))
-        #print("offset of this entity is: "+str(entity[1]))
-        #print("length of sentence = "+str(len(ent)))
         index1 = char_index_to_word_index(tokens, entity[1], "spacy")
         index2 = index1 + len(entity[0].split(' '))
-        #print("index1 = "+str(index1))
-        #print("index2 = "+str(index2))
         if ent_pos[index1] > 0:  # we have seen this token in another entity, we skip (Texas-Louisiana problem)
             pos -= 1
         else:
@@ -197,21 +167,19 @@ def ent_tags(sentence, ent_list):
     reverse_ent.append(1)
 
     return ent, reverse_ent, ent_indices, ent_words, ent_pos
-    # return ent, ent_indices, ent_words
+
 
 # given the index of a character in a sentence, it returns the word index
 def char_index_to_word_index(sentence, offset, ent_ex):
     tokens = sentence
-    #print(tokens)
-    #print(len(tokens))
     charIndex = 0
     index = 0
     for i in range(0, len(tokens)):
         if (offset > charIndex):
             # print(str(i)+", "+str(len(tokens[i])))
-            if(ent_ex=="flair"):
+            if (ent_ex == "flair"):
                 charIndex = charIndex + len(tokens[i].text) + 1
-            elif(ent_ex=="spacy"):
+            elif (ent_ex == "spacy"):
                 charIndex = charIndex + len(tokens[i]) + 1
         else:
             index = i
@@ -236,8 +204,6 @@ def construct_dependency_graph(spacy_sentence):
         dict_num_to_word[token.i] = token.text
         dict_num_to_tag[token.i] = token.pos_
         for child in token.children:
-            # print(child.tag_)
-            # print(token.text+" "+child.text+" "+child.dep_)
             if child.text != ".":
                 dict_num_to_word[child.i] = child.text
                 dict_num_to_tag[child.i] = child.pos_
@@ -285,12 +251,11 @@ def dependency_tags(spacy_sentence):
     dependency.append(0)
     return dependency, dependency_indices, dependency_words
 
+
 # function that creates features from the sentences and the entities tagged in them
 def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_model):
     model_str = hparams.model_str
     examples, exampleDs, targets, lang_targets, orig_sentences = [], [], [], [], []
-    # print("in _process_data_new")
-    # print(inp_fp)
     sentence = None
     max_extraction_length = 5
 
@@ -316,7 +281,6 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
 
                 exampleD = {'text': input_ids, 'labels': targets[:max_extraction_length], 'word_starts': word_starts,
                             'meta_data': orig_sentence}
-                # print("input ids = "+str(input_ids))
                 if len(sentence.split()) <= 100 and len(input_ids) < 512:
                     exampleDs.append(exampleD)
 
@@ -328,9 +292,6 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
                 sentence = line
                 length_sen = len(sentence.split())
                 tokenized_words = tokenizer.batch_encode_plus(sentence.split(), max_length=512)
-                # print("sentence is: "+sentence)
-                # print("tokenized words = "+str(tokenized_words))
-                # print("hparams.bos_token_id = "+str(hparams.bos_token_id))
                 input_ids, word_starts, lang = [hparams.bos_token_id], [], []
                 for tokens in tokenized_words['input_ids']:
                     if len(tokens) == 0:  # special tokens like \x9c
@@ -339,11 +300,6 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
                     input_ids.extend(tokens)
                 input_ids.append(hparams.eos_token_id)
 
-               # if len(input_ids) >= 512:
-                    #print("sentence is: " + sentence + ", number of tokens in the sentence: " + str(len(input_ids)))
-                    #count_greater_512 = count_greater_512 + 1
-
-                # print("sentence is: "+sentence+", length of input_ids is: "+len(input_ids))
                 assert len(sentence.split()) == len(word_starts), ipdb.set_trace()
         else:
             if sentence is not None:
@@ -352,13 +308,11 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
                 assert len(target) == len(word_starts), ipdb.set_trace()
                 targets.append(target)
 
-
     if spacy_model != None:
         sentences = [ed['meta_data'] for ed in exampleDs]
         for sentence_index, spacy_sentence in tqdm(enumerate(spacy_model.pipe(sentences, batch_size=10000))):
             spacy_sentence = remerge_sent(spacy_sentence)
             assert len(sentences[sentence_index].split()) == len(spacy_sentence), ipdb.set_trace()
-
 
             pos, pos_indices, pos_words = pos_tags(spacy_sentence)
 
@@ -366,23 +320,17 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
 
             verb, verb_indices, verb_words = verb_tags(spacy_sentence)
 
-            #if (sentences[sentence_index] in sentences_ent_tagged):
-            # ent, ent_indices, ent_words = ent_tags(sentences[sentence_index],sentences_ent_tagged[sentences[sentence_index]])
-            #ent_list = spacy_model(sentences[sentence_index])
             ent_list_pos = []
             for e in spacy_sentence.ents:
                 ent_list_pos.append((e.text, e.start_char, len(e.text)))
-            if(hparams.ent_extractor=="spacy"):
+            if (hparams.ent_extractor == "spacy"):
                 ent, reverse_ent, ent_indices, ent_words, ent_pos = ent_tags(sentences[sentence_index], ent_list_pos)
-            elif(hparams.ent_extractor=="flair"):
+            elif (hparams.ent_extractor == "flair"):
                 ent, reverse_ent, ent_indices, ent_words, ent_pos = ent_tags_flair(sentences[sentence_index])
-            #print(sentences[sentence_index])
-            #print("ent is: "+str(ent)+", length is: "+str(len(ent)))
-            #print("pos is: "+str(pos)+", length is: "+str(len(pos)))
 
-        # check if length of sentence acc to flair tokens is unequal to length of words in spacy tokens
-            if(hparams.task == "oie"):
-                assert(len(ent) == len(pos))
+            # check if length of sentence acc to flair tokens is unequal to length of words in spacy tokens
+            if (hparams.task == "oie"):
+                assert (len(ent) == len(pos))
 
             exampleD = exampleDs[sentence_index]
             exampleD['pos_index'] = pos_indices
@@ -395,14 +343,6 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
             exampleD['ent'] = ent
             exampleD['reverse_ent'] = reverse_ent
             exampleD['ent_pos'] = ent_pos
-           # else:
-            '''
-            ent, ent_indices, ent_words, ent_pos, reverse_ent = [], [], [], [], []
-            exampleD['ent_index'] = ent_indices
-            exampleD['ent'] = ent
-            exampleD['reverse_ent'] = reverse_ent
-            exampleD['ent_pos'] = ent_pos
-            '''
 
 
             if len(verb_indices) != 0:
@@ -420,7 +360,6 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
 def process_data_new(hparams, predict_sentences=None):
     train_fp, dev_fp, test_fp = hparams.train_fp, hparams.dev_fp, hparams.test_fp
     hparams.bos_token_id, hparams.eos_token_id = 101, 102
-    # print("in process_data_new")
 
     do_lower_case = 'uncased' in hparams.model_str
     tokenizer = AutoTokenizer.from_pretrained(hparams.model_str, do_lower_case=do_lower_case, use_fast=True,
@@ -452,7 +391,7 @@ def process_data_new(hparams, predict_sentences=None):
 
     fields = {'text': ('text', TEXT), 'labels': ('labels', LABELS), 'word_starts': (
         'word_starts', WORD_STARTS), 'meta_data': ('meta_data', META_DATA)}
-    #if 'predict' not in hparams.mode:
+    # if 'predict' not in hparams.mode:
     fields['pos'] = ('pos', POS)
     fields['pos_index'] = ('pos_index', POS_INDEX)
     fields['verb'] = ('verb', VERB)
@@ -470,17 +409,6 @@ def process_data_new(hparams, predict_sentences=None):
     else:  # hparams.task == 'conj':
         label_dict = {'CP_START': 2, 'CP': 1,
                       'CC': 3, 'SEP': 4, 'OTHERS': 5, 'NONE': 0}
-    #sentences_ent_tagged_train = read_tagged_dataset("sner/entities_tagged_train")
-    #sentences_ent_tagged_dev = read_tagged_dataset("sner/entities_tagged_dev")
-    #sentences_ent_tagged_test = read_tagged_dataset("sner/entities_tagged_test")
-    # sentences_ent_tagged_predict = read_tagged_dataset("sner/PROJECTS_relation-extraction_cois_segmented_comma_replaced_ent_tagged.txt")
-    #if 'predict' in hparams.mode:
-        # if hparams.predict_ent!="none":
-    #    sentences_ent_tagged_predict = read_tagged_dataset(hparams.predict_ent)
-        # print("read senetnces ent predict: "+str(sentences_ent_tagged_predict))
-        # print("read sentences_ent_tagged_train, length is: "+str(len(sentences_ent_tagged_train)))
-        # print("read sentences_ent_tagged_test, length is: "+str(len(sentences_ent_tagged_test)))
-        # print("read sentences_ent_tagged_dev, length is: "+str(len(sentences_ent_tagged_dev)))
 
     cached_train_fp, cached_dev_fp, cached_test_fp = f'{train_fp}.{hparams.model_str.replace("/", "_")}.pkl', f'{dev_fp}.{hparams.model_str.replace("/", "_")}.pkl', f'{test_fp}.{hparams.model_str.replace("/", "_")}.pkl'
 
@@ -503,49 +431,36 @@ def process_data_new(hparams, predict_sentences=None):
                 line = line.replace('“', '\'\'')
 
                 tokenized_line = line.split()
-                # if len(tokenized_line) >= 512:
-                    #print("length of the sentence is more than 512: " + line)
+
                 predict_sentences.append(
                     ' '.join(tokenized_line) + ' [unused1] [unused2] [unused3]')
                 predict_sentences.append('\n')
-                # print(predict_sentences)
 
         predict_examples, all_sentences = _process_data_new(predict_sentences, hparams, fields, tokenizer, label_dict,
                                                             nlp)
         META_DATA.build_vocab(data.Dataset(predict_examples, fields=fields.values()))
-       # print("printing meta_data.vocab")
-        # for e in META_DATA.vocab:
-        #	print(str(e)+"\t"+str(META_DATA.vocab[e]))
+
 
         predict_dataset = [(len(ex.text), idx, ex, fields) for idx, ex in enumerate(predict_examples)]
         train_dataset, dev_dataset, test_dataset = predict_dataset, predict_dataset, predict_dataset
-        #print("predict set")
     else:
         if not os.path.exists(cached_train_fp) or hparams.build_cache:
             train_examples, _ = _process_data_new(train_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(train_examples, open(cached_train_fp, 'wb'))
-            #print("1")
         else:
             train_examples = pickle.load(open(cached_train_fp, 'rb'))
-            #print("2")
-            #print(cached_train_fp)
 
         if not os.path.exists(cached_dev_fp) or hparams.build_cache:
             dev_examples, _ = _process_data_new(dev_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(dev_examples, open(cached_dev_fp, 'wb'))
-            #print("3")
         else:
             dev_examples = pickle.load(open(cached_dev_fp, 'rb'))
-            #print("4")
 
         if not os.path.exists(cached_test_fp) or hparams.build_cache:
             test_examples, _ = _process_data_new(test_fp, hparams, fields, tokenizer, label_dict, nlp)
             pickle.dump(test_examples, open(cached_test_fp, 'wb'))
-            #print("4")
         else:
             test_examples = pickle.load(open(cached_test_fp, 'rb'))
-            #print("5")
-        #print(data.Dataset(train_examples, fields=fields.values()).fields)
 
         META_DATA.build_vocab(data.Dataset(train_examples, fields=fields.values()), data.Dataset(
             dev_examples, fields=fields.values()), data.Dataset(test_examples, fields=fields.values()))
@@ -567,14 +482,9 @@ class dotdict(dict):
 
 def pad_data_with_ent(data):
     fields = data[0][-1]
-    # print("this is data in pad_data_with_ent: "+str(data))
     TEXT = fields['text'][1]
-    # print("this is ex[2]: "+str(ex[2]))
-    # print("in pad_data_with_ent")
-    # for ex in data:
-    #	print("this is ex[3]: "+str(ex[3]))
+
     text_list = [ex[2].text for ex in data]
-    # print("text_list: "+str(text_list))
     padded_text = torch.tensor(TEXT.pad(text_list))
 
     LABELS = fields['labels'][1]
@@ -584,9 +494,7 @@ def pad_data_with_ent(data):
     for i in range(len(labels_list)):
         pad_depth = max_depth - len(labels_list[i])
         num_words = len(labels_list[i][0])
-        # print(num_words, pad_depth)
         labels_list[i] = labels_list[i] + [[0] * num_words] * pad_depth
-    # print(labels_list)
     padded_labels = torch.tensor(LABELS.pad(labels_list))
 
     WORD_STARTS = fields['word_starts'][1]
@@ -896,4 +804,3 @@ def remove_unbreakable_conjuncts(conj, words):
 
     for k in set(to_remove):
         conj.pop(k)
-

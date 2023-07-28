@@ -52,18 +52,12 @@ def get_checkpoint_path(hparams):
 
 
 def train(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences):
-    #print("entered train")
     model = Model(hparams, meta_data_vocab)
     logger = get_logger('train', hparams)
     trainer = Trainer(enable_progress_bar=True, num_sanity_val_steps=hparams.num_sanity_val_steps, gpus=hparams.gpus, logger=logger,
                       callbacks=checkpoint_callback, min_epochs=hparams.epochs, max_epochs=hparams.epochs, gradient_clip_val=hparams.gradient_clip_val,
                       track_grad_norm=hparams.track_grad_norm)
-    #print("in run.py train function, after initializing trainer")
-    # val_percent_check=0, max_steps=hparams.max_steps, progress_bar_refresh_rate=10
     trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
-    #print("in run.py train function, after trainer.fit")
-    #print("best model path is: "+checkpoint_callback.best_model_path)
-    #print("best model score is: "+str(checkpoint_callback.best_model_score))
     if(exists(hparams.save+f'/logs/train.part')):
         shutil.move(hparams.save+f'/logs/train.part', hparams.save+f'/logs/train')
 
@@ -73,8 +67,6 @@ def resume(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_
     assert len(checkpoint_paths) == 1
     checkpoint_path = checkpoint_paths[0]
     if has_cuda:
-        #loaded_hparams_dict = torch.load(checkpoint_path)['hparams']
-        #print("load checkpoint path: "+str(torch.load(checkpoint_path)))
         loaded_hparams_dict = torch.load(checkpoint_path)['hyper_parameters']
     else:
         loaded_hparams_dict = torch.load(
@@ -96,7 +88,6 @@ def resume(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_
     if(exists(hparams.save+f'/logs/resume.part')):
         shutil.move(hparams.save+f'/logs/resume.part',
                     hparams.save+f'/logs/resume')
-    #print("best model path is: "+checkpoint_callback.best_model_path)
 
 # We can probably merge predict and test. and removing caching when only testing - VA
 def test(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences, mapping=None, conj_word_mapping=None):
@@ -125,7 +116,6 @@ def test(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_da
         trainer = Trainer(logger=logger, gpus=hparams.gpus,resume_from_checkpoint=checkpoint_path)
         trainer.test(model, test_dataloader)
         result = model.results
-        #print("results in the test function: "+str(result))
         test_f.write(f'{checkpoint_path}\t{result}\n')
         test_f.flush()
     test_f.close()
@@ -133,7 +123,6 @@ def test(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_da
         shutil.move(hparams.save+f'/logs/test.part', hparams.save+f'/logs/test')
 
 def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences, mapping=None, conj_word_mapping=None):
-    #print("hparams are: "+str(hparams))
     if hparams.task == 'conj':
         hparams.checkpoint = hparams.conj_model
     if hparams.task == 'oie':
@@ -142,7 +131,6 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     checkpoint_paths = get_checkpoint_path(hparams)
     assert len(checkpoint_paths) == 1
     checkpoint_path = checkpoint_paths[0]
-    #print("checkpoint_path: "+str(checkpoint_path))
     if has_cuda:
         if hparams.task == 'conj':
             loaded_hparams_dict = torch.load(checkpoint_path)['hyper_parameters']
@@ -153,8 +141,6 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     current_hparams_dict = vars(hparams)
     loaded_hparams_dict = data.override_args(loaded_hparams_dict, current_hparams_dict, sys.argv[1:])
     loaded_hparams = data.convert_to_namespace(loaded_hparams_dict)
-    #if hparams.task == "conj":
-    #print("loaded hparams are: "+str(loaded_hparams))
     model = Model(loaded_hparams, meta_data_vocab)
 
     if mapping != None:
@@ -167,10 +153,8 @@ def predict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val
     start_time = time.time()
     model.all_sentences = all_sentences
     tested = trainer.test(model, dataloaders=test_dataloader, ckpt_path=checkpoint_path)
-    #print("after train.test: "+str(tested))
     end_time = time.time()
     print(f'Total Time taken = {end_time-start_time} s')
-    #print("model after testing is: "+str(model))
     return model
 
 # this splits sentences acc to conj model
@@ -183,18 +167,13 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
     if hparams.split_fp == '':
         hparams.task = 'conj'
         hparams.checkpoint = hparams.conj_model
-        #hparams.model_str = '/gpfsdswork/projects/rech/mpe/ucy98jw/various/openie_newlib/openie6/bert-base-cased'
         hparams.model_str = "bert-base-cased"
         hparams.mode = 'predict'
         model = predict(hparams, None, meta_data_vocab, None, None, test_dataloader, all_sentences)
         conj_predictions = model.all_predictions_conj
-        #print("conj_predictions are: "+str(conj_predictions))
         sentences_indices = model.all_sentence_indices_conj
-        # conj_predictions = model.predictions
-        # sentences_indices = model.all_sentence_indices
         assert len(conj_predictions) == len(sentences_indices)
         all_conj_words = model.all_conjunct_words_conj
-        #print("all conj_words are: "+str(all_conj_words))
 
         sentences, orig_sentences = [], []
         for i, sentences_str in enumerate(conj_predictions):
@@ -263,9 +242,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         f.close()
 
     if hparams.rescoring:
-        #print()
         print("Starting re-scoring ...")
-        #print()
 
         sentence_line_nums, prev_line_num, curr_line_num, no_extractions = set(), 0, 0, dict()
         for sentence_str in model.all_predictions_oie:
@@ -280,10 +257,8 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
             sentence_line_nums.add(curr_line_num) # check extra empty lines, example with no extractions
             prev_line_num = curr_line_num
 
-        # testing rescoring 
-        #inp_fp = model.predictions_f_allennlp
+        # testing rescoring
         inp_fp = "results/predictions.txt.allennlp"
-        #print("inp_fp is: "+str(inp_fp))
         rescored = rescore(inp_fp, model_dir=hparams.rescore_model, batch_size=256)
 
         all_predictions, sentence_str = [], ''
@@ -460,15 +435,7 @@ def main(hparams):
     """
 
     if hparams.save != None:
-        #checkpoint_callback = ModelCheckpoint(dirpath=hparams.save, filename='/{epoch:02d}_{eval_acc:.3f}',
-        #verbose=True, monitor='eval_acc', mode='max', every_n_epochs = 1, save_on_train_epoch_end = True, period=1)
         checkpoint_callback = ModelCheckpoint(filename="{epoch:02d}_{val_acc:.3f}", save_top_k=-1, monitor = "val_acc", mode="max")
-        #save_last
-        #print("best model path is: "+checkpoint_callback.best_model_path)
-        #print("best model path is: "+str(checkpoint_callback.best_model_score))
-        #print("monitor: "+str(checkpoint_callback.monitor))
-        #checkpoint_callback = ModelCheckpoint(filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, mode="auto")
-        #filepath=hparams.save+'/{epoch:02d}_{eval_acc:.3f}', verbose=True, monitor='eval_acc', mode='max', save_top_k=hparams.save_k if not hparams.debug else 0, period=0)
 
     else:
         checkpoint_callback = None
@@ -483,7 +450,6 @@ def main(hparams):
         hparams.train_fp = 'data/ent_exclusivity/openie4_labels' if hparams.train_fp == None else hparams.train_fp
         hparams.dev_fp = 'data/ent_exclusivity/dev.txt' if hparams.dev_fp == None else hparams.dev_fp
         hparams.test_fp = 'data/ent_exclusivity/test.txt' if hparams.test_fp == None else hparams.test_fp
-        #print("task: openie")
         if hparams.debug:
             hparams.train_fp = hparams.dev_fp = hparams.test_fp = 'data/debug_oie.labels'
 
@@ -491,28 +457,13 @@ def main(hparams):
 
 
     train_dataset, val_dataset, test_dataset, meta_data_vocab, all_sentences = data.process_data_new(hparams)
-    #print("created training set")
-    '''
-    for t in train_dataset:
-    	print("train dataset: "+str(t)+"\n")
-    	
-    for t in val_dataset:
-    	print("val dataset: "+str(t)+"\n")
-    
-    for t in test_dataset:
-    	print("test dataset: "+str(t)+"\n")
-    '''
     train_dataloader = DataLoader(train_dataset, batch_size=hparams.batch_size,
                                   collate_fn=data.pad_data_with_ent, shuffle=True, num_workers=1)
     val_dataloader = DataLoader(val_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
     test_dataloader = DataLoader(test_dataset, batch_size=hparams.batch_size, collate_fn=data.pad_data_with_ent, num_workers=1)
 
-    #print("length of train_dataloader: "+str(train_dataloader))
-    #print("length of val_dataloader: "+str(len(val_dataloader)))
-    #print("length of test_dataloader: "+str(len(test_dataloader)))
 
     for process in hparams.mode.split('_'):
-        #print("about to call global()")
         globals()[process](hparams, checkpoint_callback, meta_data_vocab, train_dataloader, val_dataloader, test_dataloader, all_sentences)
 
 
@@ -522,7 +473,6 @@ if __name__ == "__main__":
     parser = Trainer.add_argparse_args(parser)
     parser = params.add_args(parser)
     hyperparams = parser.parse_args()
-    #print(str(hyperparams))
     set_seed(hyperparams.seed)
     main(hyperparams)
 
