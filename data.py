@@ -316,7 +316,8 @@ def _process_data_new(inp_fp, hparams, fields, tokenizer, label_dict, spacy_mode
 
             pos, pos_indices, pos_words = pos_tags(spacy_sentence)
 
-            dependency, dependency_indices, dependency_words = dependency_tags(spacy_sentence)
+            #dependency, dependency_indices, dependency_words = dependency_tags(spacy_sentence)
+            dependency, dependency_indices, dependency_words = [], [], []
 
             verb, verb_indices, verb_words = verb_tags(spacy_sentence)
 
