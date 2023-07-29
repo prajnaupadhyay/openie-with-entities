@@ -240,6 +240,7 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         f = open(hparams.out+'.labels','w',encoding='utf-8')
         f.write('\n'.join(label_lines))
         f.close()
+    print("Triples written to "+hparams.out+".oie, conjunctions written to "+hparams.out+".conj")
 
     if hparams.rescoring:
         print("Starting re-scoring ...")
