@@ -240,74 +240,8 @@ def splitpredict(hparams, checkpoint_callback, meta_data_vocab, train_dataloader
         f = open(hparams.out+'.labels','w',encoding='utf-8')
         f.write('\n'.join(label_lines))
         f.close()
-    print("Triples written to "+hparams.out+".oie, conjunctions written to "+hparams.out+".conj")
-
-    if hparams.rescoring:
-        print("Starting re-scoring ...")
-
-        sentence_line_nums, prev_line_num, curr_line_num, no_extractions = set(), 0, 0, dict()
-        for sentence_str in model.all_predictions_oie:
-            sentence_str = sentence_str.strip('\n')
-            num_extrs = len(sentence_str.split('\n'))-1
-            if num_extrs == 0:
-                if curr_line_num not in no_extractions:
-                    no_extractions[curr_line_num] = []
-                no_extractions[curr_line_num].append(sentence_str)
-                continue
-            curr_line_num = prev_line_num+num_extrs
-            sentence_line_nums.add(curr_line_num) # check extra empty lines, example with no extractions
-            prev_line_num = curr_line_num
-
-        # testing rescoring
-        inp_fp = "results/predictions.txt.allennlp"
-        rescored = rescore(inp_fp, model_dir=hparams.rescore_model, batch_size=256)
-
-        all_predictions, sentence_str = [], ''
-        for line_i, line in enumerate(rescored):
-            fields = line.split('\t')
-            sentence = fields[0]
-            confidence = float(fields[2])
-
-            if line_i == 0:
-                sentence_str = f'{sentence}\n'
-                exts = []
-            if line_i in sentence_line_nums:
-                exts = sorted(exts, reverse=True, key= lambda x: float(x.split()[0][:-1]))
-                exts = exts[:hparams.num_extractions]
-                all_predictions.append(sentence_str+''.join(exts))
-                sentence_str = f'{sentence}\n'
-                exts = []
-            if line_i in no_extractions:
-                for no_extraction_sentence in no_extractions[line_i]:
-                    all_predictions.append(f'{no_extraction_sentence}\n')
-
-            arg1 = re.findall("<arg1>.*</arg1>", fields[1])[0].strip('<arg1>').strip('</arg1>').strip()
-            rel = re.findall("<rel>.*</rel>", fields[1])[0].strip('<rel>').strip('</rel>').strip()
-            arg2 = re.findall("<arg2>.*</arg2>", fields[1])[0].strip('<arg2>').strip('</arg2>').strip()
-            extraction = Extraction(pred=rel, head_pred_index=None, sent=sentence, confidence=math.exp(confidence), index=0)
-            extraction.addArg(arg1)
-            extraction.addArg(arg2)
-            if hparams.type == 'sentences':
-                ext_str = data.ext_to_sentence(extraction) + '\n'
-            else:
-                ext_str = data.ext_to_string(extraction) + '\n'
-            exts.append(ext_str)
-
-        exts = sorted(exts, reverse=True, key= lambda x: float(x.split()[0][:-1]))
-        exts = exts[:hparams.num_extractions]
-        all_predictions.append(sentence_str+''.join(exts))
-
-        if line_i+1 in no_extractions:
-            for no_extraction_sentence in no_extractions[line_i+1]:
-                all_predictions.append(f'{no_extraction_sentence}\n')
-
-        if hparams.out != None:
-            print('Predictions written to ', hparams.out)
-            predictions_f = open(hparams.out,'w',encoding='UTF-8')
-        predictions_f.write('\n'.join(all_predictions)+'\n')
-        predictions_f.close()
-        return
-
+    print("Triples written to "+hparams.out+".oie, Conjunctions written to "+hparams.out+".conj")
+    
 
 def get_labels(hparams, model, sentences, orig_sentences, sentences_indices):
     label_dict = {0 : 'NONE', 1 : 'ARG1', 2 : 'REL', 3 : 'ARG2', 4 : 'ARG2', 5 : 'NONE'}

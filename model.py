@@ -505,7 +505,7 @@ class Model(pl.LightningModule):
                       "eval_lastf1": metrics['carb_lastf1']}
             self.log('val_acc', result['eval_f1'])
 
-        
+
         return result
 
     def validation_epoch_end(self, outputs):
