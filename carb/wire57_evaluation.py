@@ -95,7 +95,7 @@ def main(arguments):
     metrics, raw_match_scores = eval_system(gold, predictions_by_OIE)
 
     prec, rec = metrics['precision'], metrics['recall']
-    f1_score = f1(prec, rec)*100
+    f1_score = f1(prec, rec)
 
     report += ("prec/rec/f1: {:.2%} {:.2%} {:.2%}".format(prec, rec, f1_score))
 
