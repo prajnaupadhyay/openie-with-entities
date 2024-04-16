@@ -37,7 +37,7 @@ def get_allenlp_args(line):
 
 
 def process_allennlp_format(file, gold = False):
-    rb = open(file, "r", encoding="utf8")
+    rb = open(file, "r", encoding="ISO-8859-1")
     predicates = []
     subjects = []
     objects = []
@@ -46,13 +46,17 @@ def process_allennlp_format(file, gold = False):
     num_extractions = 0
     extractions = {}
     while line:
+        #print(line)
         items = line.strip().split('\t')
+        if len(items) < 4:
+            line = rb.readline()
+            continue
         sentence = items[0]
         if len(items) == 5:
             predicate = items[2]
             sub = items[3]
             obj = items[4]
-        else:
+        elif len(items) == 4:
             predicate = items[1]
             sub = items[2]
             obj = items[3]
